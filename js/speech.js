@@ -12,20 +12,30 @@ let voices = [];
 let token = 0;
 const keep = new Set(); // Safari ruimt uitingen soms te vroeg op
 
+// Safari geeft de stemmen soms pas later, en 'voiceschanged' komt daar niet
+// betrouwbaar (en alleen via onvoiceschanged). Daarom vragen we de lijst
+// opnieuw op zolang hij nog leeg is.
 function loadVoices() {
-  if (!synth) return;
-  voices = synth.getVoices().filter((v) => /^nl/i.test(v.lang));
+  if (!synth) return voices;
+  try { voices = synth.getVoices().filter((v) => /^nl/i.test(v.lang)); } catch {}
+  return voices;
 }
 if (synth) {
   loadVoices();
-  synth.addEventListener?.('voiceschanged', loadVoices);
+  try { synth.onvoiceschanged = loadVoices; } catch {}
+  try { synth.addEventListener?.('voiceschanged', loadVoices); } catch {}
 }
 
-export const dutchVoices = () => { loadVoices(); return voices; };
+export const dutchVoices = () => loadVoices();
+
+// De gekozen stem wordt bewaard op voiceURI (namen zijn in Safari niet altijd
+// uniek); een eerder bewaarde naam werkt ook nog.
+export const voiceId = (v) => v.voiceURI || v.name;
 
 function voice() {
+  if (!voices.length) loadVoices();
   const want = store.get().settings.voice;
-  return voices.find((v) => v.name === want)
+  return (want && (voices.find((v) => v.voiceURI === want) || voices.find((v) => v.name === want)))
     || voices.find((v) => v.lang === 'nl-NL' && !/compact/i.test(v.voiceURI))
     || voices.find((v) => v.lang === 'nl-NL')
     || voices[0] || null;
@@ -53,8 +63,10 @@ function tts(text) {
   return new Promise((res) => {
     if (!synth || !text.trim()) { res(); return; }
     const u = new SpeechSynthesisUtterance(text.replaceAll('{naam}', store.spokenName()));
-    u.lang = 'nl-NL';
+    // Altijd een stem meegeven, met dezelfde taal als die stem: anders
+    // pakt Safari soms toch de standaardstem.
     const v = voice();
+    u.lang = v ? v.lang : 'nl-NL';
     if (v) u.voice = v;
     u.rate = store.get().settings.rate || 0.9;
     u.pitch = 1.1;

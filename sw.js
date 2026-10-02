@@ -3,7 +3,7 @@
 // Let op: Henry's Feestje staat op hetzelfde domein (mjay0.github.io), dus we
 // ruimen alleen onze eigen caches op (die met PREFIX beginnen).
 const PREFIX = 'fayes-paradijs-';
-const CACHE = `${PREFIX}v1`;
+const CACHE = `${PREFIX}v2`;
 const FILES = [
   './',
   'index.html',

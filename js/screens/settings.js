@@ -28,8 +28,9 @@ export function settingsScreen() {
         ${voices.length
           ? `<label>Stem <select class="voice">
               <option value="">Automatisch</option>
-              ${voices.map((v) => `<option value="${esc(v.name)}" ${v.name === s.settings.voice ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
-            </select></label>`
+              ${voices.map((v) => `<option value="${esc(speech.voiceId(v))}" ${[speech.voiceId(v), v.name].includes(s.settings.voice) ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}
+            </select></label>
+            <p class="small">De iPad geeft ${voices.length} Nederlandse ${voices.length === 1 ? 'stem' : 'stemmen'} door. Gedownloade 'Verbeterd'- of 'Premium'-stemmen laat Safari vaak niet zien.</p>`
           : '<p class="small">Geen Nederlandse stem gevonden. Op de iPad: Instellingen → Toegankelijkheid → Gesproken materiaal → Stemmen → Nederlands.</p>'}
         <label>Tempo <select class="rate">
           ${[[0.75, 'Langzaam'], [0.9, 'Normaal'], [1, 'Vlot']].map(([r, n]) => `<option value="${r}" ${Number(s.settings.rate) === r ? 'selected' : ''}>${n}</option>`).join('')}
@@ -104,5 +105,10 @@ export function settingsScreen() {
   if (on) tap(on, () => { store.save(); store.setTestMode(true); });
   const off = el.querySelector('.test-off');
   if (off) tap(off, () => store.setTestMode(false));
-  return { el, leave() { store.save(); } };
+  // Safari geeft de stemmen soms pas na een moment: dan het scherm opnieuw tonen.
+  let tries = 0;
+  const poll = voices.length ? null : setInterval(() => {
+    if (speech.dutchVoices().length) { clearInterval(poll); go('settings'); } else if (++tries > 10) clearInterval(poll);
+  }, 300);
+  return { el, leave() { if (poll) clearInterval(poll); store.save(); } };
 }
