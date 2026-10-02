@@ -59,17 +59,22 @@ export function playScreen({ mode = 'kies', module: mid = 'letters' }) {
       `<button class="letter-card c${i % 6}" data-t="${t}">${t}</button>`).join('');
   }
 
-  function showPicture(on) {
+  // Makkelijk: plaatje met het woord eronder. Moeilijk: geen woord, en als
+  // de klank te horen is ook geen plaatje. Na een fout komt alles in beeld.
+  function showPicture(on, word = true) {
     picture.innerHTML = `<span>${q.picture}</span><b>${q.word}</b>`;
     picture.classList.toggle('hidden', !on);
+    picture.classList.toggle('no-word', !word);
   }
+  const showHint = () => showPicture(true, true);
+  const showStart = () => (store.isHard() ? showPicture(!q.recorded, false) : showPicture(true, true));
 
   function ask() {
     q = next();
     tries = 0;
     busy = false;
     // Zonder opname vraagt de stem 'vooraan bij maan': dan hoort het plaatje erbij.
-    showPicture(!q.recorded);
+    showStart();
     if (!keyboard || !answers.children.length) {
       answers.innerHTML = cards();
       answers.querySelectorAll('[data-t]').forEach((b) => press(b, () => choose(b)));
@@ -112,7 +117,7 @@ export function playScreen({ mode = 'kies', module: mid = 'letters' }) {
     streak = 0;
     b.classList.add('nope');
     sfx.wrong();
-    showPicture(true);
+    showHint();
     if (tries >= 2) answers.querySelector(`[data-t="${q.answer}"]`)?.classList.add('glow');
     speech.say(mod.hint(q, t, tries));
   }

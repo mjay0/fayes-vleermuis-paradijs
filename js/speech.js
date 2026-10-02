@@ -6,7 +6,6 @@
 // Een nieuwe say() onderbreekt de vorige.
 import * as clips from './clips.js';
 import * as store from './store.js';
-import { getAudio } from './audio.js';
 
 const synth = window.speechSynthesis || null;
 let voices = [];
@@ -90,12 +89,12 @@ function tts(text) {
 
 // ---------- Opgenomen stem (MP3's in stem/, gemaakt door tools/maak-stem.mjs) ----------
 let index = null;          // { naam, lines: { tekst: bestand } }
-const voiceBufs = new Map(); // bestand -> Promise<AudioBuffer>
 
 export async function initVoice() {
   try {
     const r = await fetch('stem/index.json');
     if (r.ok) index = await r.json();
+    clips.setGenerated(index?.klanken);
   } catch {}
 }
 
@@ -108,35 +107,7 @@ function voiceFile(text) {
 
 export const hasVoiceFile = (text) => !!voiceFile(text);
 
-// Stilte aan begin en eind eraf, zodat stukjes zin mooi aansluiten.
-function trim(ctx, b) {
-  const d = b.getChannelData(0);
-  const thr = 0.015;
-  let s = 0;
-  while (s < d.length && Math.abs(d[s]) < thr) s++;
-  let e = d.length - 1;
-  while (e > s && Math.abs(d[e]) < thr) e--;
-  s = Math.max(0, s - Math.round(b.sampleRate * 0.03));
-  e = Math.min(d.length, e + Math.round(b.sampleRate * 0.08));
-  if (e - s < 10) return b;
-  const out = ctx.createBuffer(b.numberOfChannels, e - s, b.sampleRate);
-  for (let c = 0; c < b.numberOfChannels; c++) out.copyToChannel(b.getChannelData(c).subarray(s, e), c);
-  return out;
-}
-
-function loadVoice(file) {
-  const { ctx } = getAudio();
-  if (!ctx) return null;
-  if (!voiceBufs.has(file)) {
-    const p = fetch(`stem/${file}`)
-      .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-      .then((a) => ctx.decodeAudioData(a))
-      .then((b) => trim(ctx, b));
-    p.catch(() => voiceBufs.delete(file));
-    voiceBufs.set(file, p);
-  }
-  return voiceBufs.get(file);
-}
+const loadVoice = (file) => clips.loadFile(`stem/${file}`);
 
 // Alvast laden (bijv. de zinnen van de volgende opdracht).
 export function preload(texts) {

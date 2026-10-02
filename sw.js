@@ -3,7 +3,7 @@
 // Let op: Henry's Feestje staat op hetzelfde domein (mjay0.github.io), dus we
 // ruimen alleen onze eigen caches op (die met PREFIX beginnen).
 const PREFIX = 'fayes-paradijs-';
-const CACHE = `${PREFIX}v3`;
+const CACHE = `${PREFIX}v4`;
 const FILES = [
   './',
   'index.html',
@@ -42,7 +42,7 @@ const FILES = [
 async function cacheVoice(c) {
   try {
     const idx = await (await c.match('stem/index.json')).json();
-    const files = [...new Set(Object.values(idx.lines))].map((f) => `stem/${f}`);
+    const files = [...new Set([...Object.values(idx.lines), ...Object.values(idx.klanken || {}).flat()])].map((f) => `stem/${f}`);
     let i = 0;
     await Promise.all(Array.from({ length: 6 }, async () => {
       while (i < files.length) {

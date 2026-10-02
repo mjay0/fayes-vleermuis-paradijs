@@ -15,7 +15,8 @@ export const hello = (uni, bat) => [
   'Hoi {naam}! Wat gaan we doen?',
 ];
 
-export const MAX_ROUND_STARS = 10;
+// 5 opdrachten × (2 sterren + 1 extra in de moeilijke stand)
+export const MAX_ROUND_STARS = 15;
 export const party = {
   bigStart: 'Feest! Je hebt vandaag drie rondjes gedaan!',
   start: 'Hoera!',
@@ -37,6 +38,11 @@ export const paradise = {
 
 export const settingsTest = 'Hoi {naam}!';
 
+export const level = {
+  makkelijk: 'Makkelijk!',
+  moeilijk: 'Moeilijk! Dan krijg je een extra ster.',
+};
+
 export function allLines() {
   const items = [...UNICORNS, ...BATS, ...DECOR];
   const lines = [
@@ -48,7 +54,7 @@ export function allLines() {
     ...items.flatMap((it) => [paradise.owned(it), paradise.name(it), paradise.bought(it)]),
     ...[...UNICORNS, ...BATS].map(paradise.hi),
     ...[...new Set(shopList().map((it) => it.cost))].map(paradise.cost),
-    settingsTest,
+    settingsTest, level.makkelijk, level.moeilijk,
     ...MODULES.flatMap((m) => (m.lines ? m.lines() : [])),
   ];
   return [...new Set(lines)];

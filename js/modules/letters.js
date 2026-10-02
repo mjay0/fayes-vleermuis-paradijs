@@ -39,6 +39,17 @@ export const LETTERS = [
   { l: 'c', w: 'cactus', e: '🌵' },
 ];
 export const ORDER = LETTERS.map((x) => x.l);
+
+// Wat de opgenomen stem (Harper) leest om de klank te maken, als papa hem
+// niet zelf heeft ingesproken. Twee varianten per letter; papa kiest op het
+// opnamescherm de beste (of zet hem uit). Zijn eigen opname gaat altijd voor.
+export const KLANK_TTS = {
+  m: ['mmm', 'mmmmm'], s: ['sss', 'ssssss'], a: ['a', 'ah'], i: ['i', 'ih'], o: ['o', 'oh'],
+  r: ['rrr', 'rrrrr'], v: ['vvv', 'vvvvv'], k: ['k', 'kh'], p: ['p', 'ph'], e: ['e', 'eh'],
+  n: ['nnn', 'nnnnn'], t: ['t', 'th'], l: ['lll', 'lllll'], h: ['h', 'hhh'], j: ['j', 'jjj'],
+  z: ['zzz', 'zzzzz'], b: ['b', 'bh'], g: ['ggg', 'gh'], w: ['w', 'www'], u: ['u', 'uh'],
+  f: ['fff', 'fffff'], d: ['d', 'dh'], c: ['k', 'kh'],
+};
 export const info = (l) => LETTERS.find((x) => x.l === l);
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 

@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { allLines } = await import('../js/lines.js');
+const { KLANK_TTS } = await import('../js/modules/letters.js');
 
 const MODEL = 'microsoft/mai-voice-2.1';
 const VOICE = 'nl-NL-Harper:MAI-Voice-2.1';
@@ -27,8 +28,8 @@ const slug = (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
   .replace(/\{naam\}/g, 'naam').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
 const fileFor = (t) => `${slug(t)}-${createHash('sha1').update(`${VOICE}|${NAAM}|${t}`).digest('hex').slice(0, 8)}.mp3`;
 
-async function make(text, file) {
-  const input = text.replaceAll('{naam}', NAAM);
+async function make(text, file, raw = false) {
+  const input = raw ? text : text.replaceAll('{naam}', NAAM);
   for (let attempt = 1; attempt <= 3; attempt++) {
     const res = await fetch('https://openrouter.ai/api/v1/audio/speech', {
       method: 'POST',
@@ -45,12 +46,20 @@ async function make(text, file) {
   }
 }
 
-const index = { model: MODEL, voice: VOICE, naam: NAAM, lines: {} };
+const index = { model: MODEL, voice: VOICE, naam: NAAM, lines: {}, klanken: {} };
 const todo = [];
 for (const t of lines) {
   const f = fileFor(t);
   index.lines[t] = f;
   if (!existsSync(join(dir, f))) todo.push([t, f]);
+}
+// Klanken: letter -> [bestand variant 1, variant 2].
+for (const [l, inputs] of Object.entries(KLANK_TTS)) {
+  index.klanken[l] = inputs.map((t, i) => {
+    const f = `klank-${l}-${i + 1}-${createHash('sha1').update(`${VOICE}|klank|${t}`).digest('hex').slice(0, 8)}.mp3`;
+    if (!existsSync(join(dir, f))) todo.push([t, f, true, l]);
+    return f;
+  });
 }
 console.log(`${lines.length} zinnen, ${todo.length} nieuw te maken (${todo.reduce((n, [t]) => n + t.length, 0)} tekens)`);
 
@@ -58,14 +67,14 @@ let done = 0;
 const failed = [];
 const workers = Array.from({ length: 4 }, async () => {
   while (todo.length) {
-    const [t, f] = todo.shift();
+    const [t, f, raw, l] = todo.shift();
     try {
-      await make(t, f);
+      await make(t, f, raw);
       done++;
       if (done % 20 === 0) console.log(`  ${done} klaar…`);
     } catch (e) {
       failed.push(t);
-      delete index.lines[t];
+      if (l) index.klanken[l] = index.klanken[l].filter((x) => x !== f); else delete index.lines[t];
       console.log(`  MISLUKT: "${t}": ${e.message}`);
     }
   }
@@ -73,7 +82,7 @@ const workers = Array.from({ length: 4 }, async () => {
 await Promise.all(workers);
 
 // Opruimen: bestanden die bij geen zin meer horen.
-const keep = new Set(Object.values(index.lines));
+const keep = new Set([...Object.values(index.lines), ...Object.values(index.klanken).flat()]);
 for (const f of readdirSync(dir)) if (f.endsWith('.mp3') && !keep.has(f)) unlinkSync(join(dir, f));
 
 writeFileSync(join(dir, 'index.json'), `${JSON.stringify(index, null, 1)}\n`);

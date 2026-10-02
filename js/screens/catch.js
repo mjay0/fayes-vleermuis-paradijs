@@ -47,10 +47,15 @@ export function catchScreen({ module: mid = 'letters' }) {
   tap(el.querySelector('.back'), () => go('home'));
   tap(el.querySelector('.listen-btn'), () => { if (q) speech.say(mod.ask(q, { first: false })); }, { sound: false });
 
-  function showPicture(on) {
+  // Makkelijk: plaatje met het woord eronder. Moeilijk: geen woord, en als
+  // de klank te horen is ook geen plaatje. Na een fout komt alles in beeld.
+  function showPicture(on, word = true) {
     picture.innerHTML = `<span>${q.picture}</span><b>${q.word}</b>`;
     picture.classList.toggle('hidden', !on);
+    picture.classList.toggle('no-word', !word);
   }
+  const showHint = () => showPicture(true, true);
+  const showStart = () => (store.isHard() ? showPicture(!q.recorded, false) : showPicture(true, true));
 
   function spawn() {
     bats.forEach((b) => b.el.remove());
@@ -107,7 +112,7 @@ export function catchScreen({ module: mid = 'letters' }) {
     q = next();
     tries = 0;
     busy = false;
-    showPicture(!q.recorded);
+    showStart();
     spawn();
     speech.say(mod.ask(q));
   }
@@ -151,7 +156,7 @@ export function catchScreen({ module: mid = 'letters' }) {
     bat.el.classList.remove('nope'); void bat.el.offsetWidth; bat.el.classList.add('nope');
     bat.state = 'flee';
     bat.speed = 3;
-    showPicture(true);
+    showHint();
     if (tries >= 2) {
       const good = bats.find((b) => b.t === q.answer);
       if (good) { good.el.classList.add('glow'); good.speed = 0.4; good.state = 'slow'; }

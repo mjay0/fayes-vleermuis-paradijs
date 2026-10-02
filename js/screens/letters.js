@@ -15,7 +15,7 @@ export function lettersScreen() {
     return `<button class="lt-tile ${on ? 'on' : ''} ${box >= MAX_BOX ? 'gold' : ''}" data-l="${x.l}">
       <span class="lt-letter">${x.l}</span>
       <span class="lt-box">${'★'.repeat(box)}${'☆'.repeat(MAX_BOX - box)}</span>
-      <span class="lt-state">${on ? 'doet mee' : s.lettersOff.includes(x.l) ? 'uit' : 'komt nog'}${clips.has(x.l) ? ' · 🎙️' : ''}</span>
+      <span class="lt-state">${on ? 'doet mee' : s.lettersOff.includes(x.l) ? 'uit' : 'komt nog'}${clips.hasOwn(x.l) ? ' · 🎙️' : ''}</span>
     </button>`;
   };
   const el = h(`<div>

@@ -33,6 +33,7 @@ const fresh = () => ({
   buddyBat: 'pip',
   buddyUni: 'roosje',
   rounds: 0,
+  level: 'makkelijk',    // 'makkelijk' (plaatje + woord) of 'moeilijk' (zonder woord, extra ster)
   days: {},              // 'JJJJ-MM-DD' -> aantal rondes
   streak: { last: null, count: 0 },
   goalDays: 0,
@@ -128,4 +129,6 @@ export function currentStreak() {
 }
 
 // Zo spreekt de stem haar naam uit (papa kan dit aanpassen).
+export const isHard = () => state.level === 'moeilijk';
+
 export const spokenName = () => state.settings.spokenName || state.settings.name || '';

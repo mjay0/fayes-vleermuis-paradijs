@@ -1,7 +1,10 @@
 // Ingesproken klanken: papa neemt elke klank één keer op. De opname wordt
 // bijgeknipt (stilte eraf), even hard gemaakt en als WAV bewaard in IndexedDB,
 // lokaal op de iPad. Zowel het echte profiel als de testmodus gebruiken ze.
+// Heeft papa een klank niet ingesproken, dan gebruiken we de klank van de
+// opgenomen stem (Harper, stem/klank-*.mp3), in de variant die papa koos.
 import { getAudio } from './audio.js';
+import * as store from './store.js';
 
 const DB = 'fayes-paradijs-klanken';
 const STORE = 'clips';
@@ -50,7 +53,21 @@ export async function init() {
   } catch {}
 }
 
-export const has = (id) => raw.has(id);
+// ---------- Klanken van de opgenomen stem ----------
+let generated = {}; // letter -> [bestand variant 1, variant 2]
+export function setGenerated(map) { generated = map || {}; }
+export const variants = (id) => generated[id] || [];
+// Gekozen variant: 1 of 2 (standaard 1), 0 = uit.
+export const variant = (id) => { const v = store.get().settings.klankVariant?.[id]; return v === undefined ? 1 : v; };
+export function setVariant(id, v) {
+  const s = store.get().settings;
+  s.klankVariant = { ...(s.klankVariant || {}), [id]: v };
+  store.save();
+}
+const generatedFile = (id) => { const v = variant(id); return v ? variants(id)[v - 1] || null : null; };
+
+export const hasOwn = (id) => raw.has(id);
+export const has = (id) => raw.has(id) || !!generatedFile(id);
 export const count = (ids) => ids.filter((id) => raw.has(id)).length;
 
 export async function save(id, wav) {
@@ -76,10 +93,54 @@ async function buffer(id) {
 }
 
 // Speelt een klank af; de promise is klaar als hij is afgelopen.
+// Eigen opname eerst, anders de gekozen variant van de opgenomen stem.
 export async function play(id) {
   let b = null;
-  try { b = await buffer(id); } catch {}
+  try {
+    if (raw.has(id)) b = await buffer(id);
+    else if (generatedFile(id)) b = await loadFile(`stem/${generatedFile(id)}`);
+  } catch {}
   return playBuffer(b);
+}
+
+// Een variant van de opgenomen stem beluisteren (opnamescherm).
+export async function playVariant(id, v) {
+  const f = variants(id)[v - 1];
+  let b = null;
+  try { if (f) b = await loadFile(`stem/${f}`); } catch {}
+  return playBuffer(b);
+}
+
+// Een MP3 uit de app laden, decoderen en de stilte eraf knippen (met cache).
+const files = new Map();
+export function loadFile(path) {
+  const { ctx } = getAudio();
+  if (!ctx) return Promise.resolve(null);
+  if (!files.has(path)) {
+    const p = fetch(path)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then((a) => ctx.decodeAudioData(a))
+      .then((b) => trim(ctx, b));
+    p.catch(() => files.delete(path));
+    files.set(path, p);
+  }
+  return files.get(path);
+}
+
+// Stilte aan begin en eind eraf, zodat stukjes zin mooi aansluiten.
+function trim(ctx, b) {
+  const d = b.getChannelData(0);
+  const thr = 0.015;
+  let s = 0;
+  while (s < d.length && Math.abs(d[s]) < thr) s++;
+  let e = d.length - 1;
+  while (e > s && Math.abs(d[e]) < thr) e--;
+  s = Math.max(0, s - Math.round(b.sampleRate * 0.03));
+  e = Math.min(d.length, e + Math.round(b.sampleRate * 0.08));
+  if (e - s < 10) return b;
+  const out = ctx.createBuffer(b.numberOfChannels, e - s, b.sampleRate);
+  for (let c = 0; c < b.numberOfChannels; c++) out.copyToChannel(b.getChannelData(c).subarray(s, e), c);
+  return out;
 }
 
 // Speelt een AudioBuffer af (ook gebruikt voor de stem-bestanden).

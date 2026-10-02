@@ -5,7 +5,7 @@ import * as speech from '../speech.js';
 import { unicornSVG, batSVG } from '../art.js';
 import { buddyUni, buddyBat, anyAffordable } from '../rewards.js';
 import { MODULES, MODES } from '../modules/index.js';
-import { hello as helloLines, PRAISE } from '../lines.js';
+import { hello as helloLines, PRAISE, level as levelLines } from '../lines.js';
 import * as store from '../store.js';
 
 let greeted = false;
@@ -57,6 +57,10 @@ export function homeScreen() {
         <div class="uni-wrap tapme">${unicornSVG(uni)}</div>
         <div class="bat-wrap tapme fly"><div class="bubble pop">${line.replaceAll('{naam}', s.settings.name)}</div>${batSVG(bat)}</div>
       </div>
+      <div class="levels" role="group" aria-label="Moeilijkheid">
+        <button class="level ${store.isHard() ? '' : 'on'}" data-level="makkelijk">🌙 Makkelijk</button>
+        <button class="level ${store.isHard() ? 'on' : ''}" data-level="moeilijk">🌙🌙 Moeilijk <small>+1 ⭐</small></button>
+      </div>
       <div class="modes">${modeButtons}
         <button class="mode mode-paradise ${anyAffordable() ? 'glow' : ''}">
           <span class="mode-icon">🏰</span><span class="mode-name">Mijn paradijs</span></button>
@@ -68,6 +72,12 @@ export function homeScreen() {
     go(MODES[b.dataset.mode].screen, { mode: b.dataset.mode, module: b.dataset.mod });
   }));
   tap(el.querySelector('.mode-paradise'), () => go('paradise'));
+  el.querySelectorAll('[data-level]').forEach((b) => tap(b, () => {
+    s.level = b.dataset.level;
+    store.save();
+    el.querySelectorAll('[data-level]').forEach((x) => x.classList.toggle('on', x === b));
+    speech.say(levelLines[s.level]);
+  }));
   tap(el.querySelector('.settings'), () => { if (parentCheck()) go('settings'); });
   tap(el.querySelector('.bat-wrap'), () => { sfx.squeak(); speech.say(line); }, { sound: false });
   tap(el.querySelector('.uni-wrap'), () => {

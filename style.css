@@ -34,12 +34,14 @@ html, body {
   -webkit-touch-callout: none;
 }
 
-body {
+/* Achtergrond als vaste laag: background-attachment: fixed werkt niet op iOS,
+   en zo loopt de kleur ook door op lange schermen die scrollen. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
     radial-gradient(1000px 600px at 15% -10%, rgba(255, 122, 217, 0.22), transparent 60%),
     radial-gradient(900px 600px at 110% 20%, rgba(127, 209, 255, 0.16), transparent 60%),
     linear-gradient(180deg, var(--bg), var(--bg2) 70%, #3d2470);
-  background-attachment: fixed;
 }
 
 /* Twinkelende sterretjes op de achtergrond (alleen de achtergrondlaag beweegt). */
@@ -404,6 +406,13 @@ button:disabled { opacity: 0.35; }
 .rec-row.saved { animation: pop-in 0.3s; }
 .rec-letter { width: 64px; text-align: center; font-family: var(--letter-font); font-size: 46px; font-weight: 800; }
 .rec-word { flex: 1; font-size: 20px; font-weight: 700; }
+.rec-row { flex-wrap: wrap; }
+.gen { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.gen.muted { opacity: 0.45; }
+.gen-label { font-size: 14px; font-weight: 800; color: var(--muted); }
+.rec-row .btn.var { min-width: 52px; font-size: 20px; }
+.rec-row .btn.var.on { background: var(--lilac); border-color: var(--lilac); }
+.rec-row .btn.var.off.on { background: rgba(255, 107, 138, 0.35); border-color: var(--red); }
 .rec-row .btn { flex: none; min-height: 56px; min-width: 64px; padding: 8px 14px; font-size: 26px; }
 
 .lt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
@@ -423,3 +432,14 @@ button:disabled { opacity: 0.35; }
 @media (prefers-reduced-motion: reduce) {
   .fly, .bounce, .dance, .loop, .glow, .listen-btn, .sky { animation: none; }
 }
+
+/* ---------- Makkelijk / moeilijk ---------- */
+.levels { display: flex; justify-content: center; gap: 12px; }
+.level {
+  min-height: 60px; padding: 10px 22px; border-radius: 999px;
+  background: var(--glass); border: 2px solid var(--glass-line);
+  font-weight: 800; font-size: clamp(18px, 2.6vmin, 24px);
+}
+.level small { font-size: 0.7em; color: var(--gold); }
+.level.on { background: linear-gradient(135deg, var(--pink), var(--lilac)); border-color: transparent; box-shadow: 0 6px 18px rgba(255, 122, 217, 0.35); }
+.picture.no-word b { display: none; }

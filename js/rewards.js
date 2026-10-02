@@ -66,5 +66,5 @@ export function buy(item) {
 export const buddyUni = () => byId(store.get().buddyUni) || UNICORNS[0];
 export const buddyBat = () => byId(store.get().buddyBat) || BATS[0];
 
-// Sterren per opdracht: meteen goed 2, met hulp 1.
-export const starsFor = (firstTry) => (firstTry ? 2 : 1);
+// Sterren per opdracht: meteen goed 2, met hulp 1; moeilijk: 1 extra.
+export const starsFor = (firstTry) => (firstTry ? 2 : 1) + (store.isHard() ? 1 : 0);

@@ -38,6 +38,11 @@
   "Je hebt 8 sterren verdiend!": "je-hebt-8-sterren-verdiend-c55fe50c.mp3",
   "Je hebt 9 sterren verdiend!": "je-hebt-9-sterren-verdiend-fb5dd00a.mp3",
   "Je hebt 10 sterren verdiend!": "je-hebt-10-sterren-verdiend-998ca89c.mp3",
+  "Je hebt 11 sterren verdiend!": "je-hebt-11-sterren-verdiend-cb9321fe.mp3",
+  "Je hebt 12 sterren verdiend!": "je-hebt-12-sterren-verdiend-99a09c89.mp3",
+  "Je hebt 13 sterren verdiend!": "je-hebt-13-sterren-verdiend-73e8520c.mp3",
+  "Je hebt 14 sterren verdiend!": "je-hebt-14-sterren-verdiend-140b9b2d.mp3",
+  "Je hebt 15 sterren verdiend!": "je-hebt-15-sterren-verdiend-dbffe052.mp3",
   "Welkom in je paradijs!": "welkom-in-je-paradijs-3f8edc34.mp3",
   "Wil je dit kopen?": "wil-je-dit-kopen-16fc4d18.mp3",
   "Je hebt nog niet genoeg sterren. Ga lekker letters oefenen!": "je-hebt-nog-niet-genoeg-sterren-ga-lekke-24ffa6bd.mp3",
@@ -122,6 +127,8 @@
   "Dit kost 70 sterren.": "dit-kost-70-sterren-0102c22b.mp3",
   "Dit kost 85 sterren.": "dit-kost-85-sterren-a89915b2.mp3",
   "Hoi {naam}!": "hoi-naam-73dfc348.mp3",
+  "Makkelijk!": "makkelijk-616f998b.mp3",
+  "Moeilijk! Dan krijg je een extra ster.": "moeilijk-dan-krijg-je-een-extra-ster-89e743d0.mp3",
   "Welke letter hoor je?": "welke-letter-hoor-je-10c4e937.mp3",
   "Luister nog eens.": "luister-nog-eens-98aebefb.mp3",
   "Dat is de": "dat-is-de-0bb31b9c.mp3",
@@ -222,5 +229,99 @@
   "Zoek de letter van cactus.": "zoek-de-letter-van-cactus-676e38b9.mp3",
   "van cactus.": "van-cactus-a75bbfc0.mp3",
   "Cactus begint met deze letter. Cactus!": "cactus-begint-met-deze-letter-cactus-c820823c.mp3"
+ },
+ "klanken": {
+  "m": [
+   "klank-m-1-1e413688.mp3",
+   "klank-m-2-29d575fd.mp3"
+  ],
+  "s": [
+   "klank-s-1-fc19334d.mp3",
+   "klank-s-2-37c20c85.mp3"
+  ],
+  "a": [
+   "klank-a-1-ce2eac83.mp3",
+   "klank-a-2-845b8ede.mp3"
+  ],
+  "i": [
+   "klank-i-1-2f2f93a5.mp3",
+   "klank-i-2-3c74391b.mp3"
+  ],
+  "o": [
+   "klank-o-1-bee8cf47.mp3",
+   "klank-o-2-2057e7fe.mp3"
+  ],
+  "r": [
+   "klank-r-1-e890e18f.mp3",
+   "klank-r-2-d6f5f5c2.mp3"
+  ],
+  "v": [
+   "klank-v-1-05e0884a.mp3",
+   "klank-v-2-10b64a07.mp3"
+  ],
+  "k": [
+   "klank-k-1-1ff6a0c9.mp3",
+   "klank-k-2-411d3507.mp3"
+  ],
+  "p": [
+   "klank-p-1-2ad22eb0.mp3",
+   "klank-p-2-bd5e4638.mp3"
+  ],
+  "e": [
+   "klank-e-1-3053b738.mp3",
+   "klank-e-2-4c8a2e34.mp3"
+  ],
+  "n": [
+   "klank-n-1-405b847a.mp3",
+   "klank-n-2-6ae587fd.mp3"
+  ],
+  "t": [
+   "klank-t-1-128ca74f.mp3",
+   "klank-t-2-87f2c399.mp3"
+  ],
+  "l": [
+   "klank-l-1-5919084a.mp3",
+   "klank-l-2-5d0b651b.mp3"
+  ],
+  "h": [
+   "klank-h-1-a7726d2b.mp3",
+   "klank-h-2-ea48e347.mp3"
+  ],
+  "j": [
+   "klank-j-1-393d0675.mp3",
+   "klank-j-2-d497a87c.mp3"
+  ],
+  "z": [
+   "klank-z-1-394ea193.mp3",
+   "klank-z-2-c58292d3.mp3"
+  ],
+  "b": [
+   "klank-b-1-8d030814.mp3",
+   "klank-b-2-1e736a0d.mp3"
+  ],
+  "g": [
+   "klank-g-1-214cbf8c.mp3",
+   "klank-g-2-bfed0a71.mp3"
+  ],
+  "w": [
+   "klank-w-1-489df33a.mp3",
+   "klank-w-2-ba9cb64b.mp3"
+  ],
+  "u": [
+   "klank-u-1-95ef7e3c.mp3",
+   "klank-u-2-6c162870.mp3"
+  ],
+  "f": [
+   "klank-f-1-fc0bf3f8.mp3",
+   "klank-f-2-6e6d8585.mp3"
+  ],
+  "d": [
+   "klank-d-1-a973e07c.mp3",
+   "klank-d-2-8e52bc94.mp3"
+  ],
+  "c": [
+   "klank-c-1-1ff6a0c9.mp3",
+   "klank-c-2-411d3507.mp3"
+  ]
  }
 }
