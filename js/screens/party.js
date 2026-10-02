@@ -6,6 +6,7 @@ import * as speech from '../speech.js';
 import { unicornSVG, batSVG } from '../art.js';
 import { buddyUni, buddyBat, anyAffordable } from '../rewards.js';
 import { info } from '../modules/letters.js';
+import { party as P } from '../lines.js';
 import * as store from '../store.js';
 
 export function partyScreen({ earned = 0, newLetter = null, big = false, again = null }) {
@@ -46,9 +47,9 @@ export function partyScreen({ earned = 0, newLetter = null, big = false, again =
 
   (async () => {
     await wait(600);
-    const parts = [big ? 'Feest! Je hebt vandaag drie rondjes gedaan!' : 'Hoera!', `Je hebt ${earned} sterren verdiend!`];
-    if (newLetter) parts.push('En je hebt een nieuwe letter verdiend!');
-    if (shop) parts.push('Je kunt iets nieuws kopen in je paradijs!');
+    const parts = [big ? P.bigStart : P.start, P.stars(earned)];
+    if (newLetter) parts.push(P.newLetter);
+    if (shop) parts.push(P.shop);
     if (alive) speech.say(parts);
   })();
 

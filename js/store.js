@@ -36,7 +36,7 @@ const fresh = () => ({
   days: {},              // 'JJJJ-MM-DD' -> aantal rondes
   streak: { last: null, count: 0 },
   goalDays: 0,
-  settings: { sound: true, music: true, voice: '', rate: 0.9, name: 'Faye', spokenName: 'Faye' },
+  settings: { sound: true, music: true, voice: '', rate: 0.9, name: 'Faye', spokenName: 'Fee' },
 });
 
 const freshTest = () => ({
@@ -52,6 +52,8 @@ let state = initial();
 
 function migrate(s) {
   const base = fresh();
+  // v3: 'Faye' klinkt als 'Fee'; de opgenomen stem is daarmee gemaakt.
+  if (s.settings && s.settings.spokenName === 'Faye') s.settings.spokenName = 'Fee';
   return {
     ...base,
     ...s,

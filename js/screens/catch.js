@@ -1,6 +1,7 @@
 // Spelvorm 'Vleermuizen vangen': vleermuizen met een letter op hun buik
 // fladderen rond. Faye hoort een klank en tikt de goede vleermuis aan.
-import { h, tap, go, floatText, pick, moons, wait, PRAISE } from '../ui.js';
+import { h, tap, go, floatText, pick, moons, wait } from '../ui.js';
+import { PRAISE } from '../lines.js';
 import { sfx } from '../audio.js';
 import * as speech from '../speech.js';
 import { batSVG } from '../art.js';

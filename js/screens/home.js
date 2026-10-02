@@ -5,6 +5,7 @@ import * as speech from '../speech.js';
 import { unicornSVG, batSVG } from '../art.js';
 import { buddyUni, buddyBat, anyAffordable } from '../rewards.js';
 import { MODULES, MODES } from '../modules/index.js';
+import { hello as helloLines, PRAISE } from '../lines.js';
 import * as store from '../store.js';
 
 let greeted = false;
@@ -22,6 +23,7 @@ export function startScreen() {
   tap(el.querySelector('button'), () => {
     unlock();
     speech.warm();
+    speech.preload(PRAISE);
     sfx.magic();
     go('home');
   }, { sound: false });
@@ -34,13 +36,7 @@ export function homeScreen() {
   const bat = buddyBat();
   const done = Math.min(store.roundsToday(), store.GOAL_ROUNDS);
   const streak = store.currentStreak();
-  const hello = [
-    'Hoi {naam}! Zullen we letters zoeken?',
-    `Hoi {naam}! ${bat.name} wil vleermuizen vangen!`,
-    `${uni.name} heeft zin in letters!`,
-    'Hoi {naam}! Wat gaan we doen?',
-  ];
-  const line = pick(hello);
+  const line = pick(helloLines(uni, bat));
 
   const modeButtons = MODULES.map((m) => m.modes.map((id) => {
     const md = MODES[id];

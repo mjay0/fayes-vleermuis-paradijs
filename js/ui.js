@@ -81,4 +81,3 @@ export const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 export const moons = (done, total) =>
   Array.from({ length: total }, (_, i) => `<i class="${i < done ? 'on' : ''}">${i < done ? '🌕' : '🌑'}</i>`).join('');
 
-export const PRAISE = ['Goed zo!', 'Super!', 'Knap hoor!', 'Wauw!', 'Toppie!', 'Helemaal goed!', 'Goed zo, {naam}!', 'Jij kan het!'];

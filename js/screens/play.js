@@ -1,7 +1,8 @@
 // Spelvormen 'Kies de letter' (3 tot 6 grote kaarten) en 'Letter-toetsen'
 // (het hele alfabet). Faye hoort een klank en tikt de letter aan.
 // Fouten zijn nooit straf: een lieve hint, en na twee keer licht de goede op.
-import { h, tap, press, go, floatText, pick, moons, wait, PRAISE } from '../ui.js';
+import { h, tap, press, go, floatText, pick, moons, wait } from '../ui.js';
+import { PRAISE } from '../lines.js';
 import { sfx } from '../audio.js';
 import * as speech from '../speech.js';
 import { batSVG } from '../art.js';

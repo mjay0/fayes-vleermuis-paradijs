@@ -5,6 +5,7 @@ import { sfx } from '../audio.js';
 import * as speech from '../speech.js';
 import { hillsSVG, treeSVG } from '../art.js';
 import { UNICORNS, BATS, DECOR, ownedOf, owns, shopList, canBuy, buy, art } from '../rewards.js';
+import { paradise as P } from '../lines.js';
 import * as store from '../store.js';
 
 // Vaste plekjes: unicorns op het gras, vleermuizen aan de tak.
@@ -55,9 +56,9 @@ export function paradiseScreen({ fresh = null } = {}) {
   el.querySelectorAll('.dweller').forEach((d) => tap(d, () => {
     const it = find(d.dataset.id);
     d.classList.remove('trick'); void d.offsetWidth; d.classList.add('trick');
-    if (it.kind === 'uni') { sfx.magic(); speech.say(`Hoi! Ik ben ${it.name}!`); }
-    else if (it.kind === 'bat') { sfx.squeak(); speech.say(`Hoi! Ik ben ${it.name}!`); }
-    else { sfx.pop(); speech.say(it.name); }
+    if (it.kind === 'uni') { sfx.magic(); speech.say(P.hi(it)); }
+    else if (it.kind === 'bat') { sfx.squeak(); speech.say(P.hi(it)); }
+    else { sfx.pop(); speech.say(P.name(it)); }
   }, { sound: false }));
 
   el.querySelectorAll('.shop-tile').forEach((t) => tap(t, () => openItem(find(t.dataset.id))));
@@ -79,9 +80,9 @@ export function paradiseScreen({ fresh = null } = {}) {
       </div>
     </div>`);
     el.appendChild(ov);
-    if (own) speech.say(`${it.name} woont al in je paradijs!`);
-    else if (can) speech.say([`${it.name}.`, `Dit kost ${it.cost} sterren.`, 'Wil je hem kopen?']);
-    else speech.say([`${it.name}.`, `Dit kost ${it.cost} sterren.`, `Je hebt er nog ${short} nodig. Ga lekker letters oefenen!`]);
+    if (own) speech.say(P.owned(it));
+    else if (can) speech.say([P.name(it), P.cost(it.cost), P.buy]);
+    else speech.say([P.name(it), P.cost(it.cost), P.save]);
     tap(ov.querySelector('.close'), () => { speech.stop(); ov.remove(); });
     ov.addEventListener('click', (e) => { if (e.target === ov) { speech.stop(); ov.remove(); } });
     const b = ov.querySelector('.buy');
@@ -96,9 +97,9 @@ export function paradiseScreen({ fresh = null } = {}) {
   if (fresh) {
     const it = find(fresh);
     confetti(el, 90);
-    setTimeout(() => speech.say(`Hoera! ${it.name} woont nu in je paradijs!`), 500);
+    setTimeout(() => speech.say(P.bought(it)), 500);
   } else {
-    setTimeout(() => speech.say('Welkom in je paradijs!'), 300);
+    setTimeout(() => speech.say(P.welcome), 300);
   }
 
   return { el };

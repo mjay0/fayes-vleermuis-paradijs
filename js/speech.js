@@ -1,11 +1,12 @@
 // De stem van het spel. Faye kan nog niet lezen, dus alles wordt gezegd.
 // say() krijgt een lijstje onderdelen:
-//   'tekst'                       -> iPad-stem (nl-NL)
+//   'tekst'                       -> opgenomen stem (stem/*.mp3), anders iPad-stem
 //   { clip: 'm', or: [...] }      -> papa's opname, of anders 'or' (terugval)
 //   { pause: 300 }                -> even stil
 // Een nieuwe say() onderbreekt de vorige.
 import * as clips from './clips.js';
 import * as store from './store.js';
+import { getAudio } from './audio.js';
 
 const synth = window.speechSynthesis || null;
 let voices = [];
@@ -87,10 +88,76 @@ function tts(text) {
   });
 }
 
+// ---------- Opgenomen stem (MP3's in stem/, gemaakt door tools/maak-stem.mjs) ----------
+let index = null;          // { naam, lines: { tekst: bestand } }
+const voiceBufs = new Map(); // bestand -> Promise<AudioBuffer>
+
+export async function initVoice() {
+  try {
+    const r = await fetch('stem/index.json');
+    if (r.ok) index = await r.json();
+  } catch {}
+}
+
+// Zinnen met {naam} alleen als de bestanden met dezelfde naam zijn gemaakt.
+function voiceFile(text) {
+  if (!index) return null;
+  if (text.includes('{naam}') && index.naam !== store.spokenName()) return null;
+  return index.lines[text] || null;
+}
+
+export const hasVoiceFile = (text) => !!voiceFile(text);
+
+// Stilte aan begin en eind eraf, zodat stukjes zin mooi aansluiten.
+function trim(ctx, b) {
+  const d = b.getChannelData(0);
+  const thr = 0.015;
+  let s = 0;
+  while (s < d.length && Math.abs(d[s]) < thr) s++;
+  let e = d.length - 1;
+  while (e > s && Math.abs(d[e]) < thr) e--;
+  s = Math.max(0, s - Math.round(b.sampleRate * 0.03));
+  e = Math.min(d.length, e + Math.round(b.sampleRate * 0.08));
+  if (e - s < 10) return b;
+  const out = ctx.createBuffer(b.numberOfChannels, e - s, b.sampleRate);
+  for (let c = 0; c < b.numberOfChannels; c++) out.copyToChannel(b.getChannelData(c).subarray(s, e), c);
+  return out;
+}
+
+function loadVoice(file) {
+  const { ctx } = getAudio();
+  if (!ctx) return null;
+  if (!voiceBufs.has(file)) {
+    const p = fetch(`stem/${file}`)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then((a) => ctx.decodeAudioData(a))
+      .then((b) => trim(ctx, b));
+    p.catch(() => voiceBufs.delete(file));
+    voiceBufs.set(file, p);
+  }
+  return voiceBufs.get(file);
+}
+
+// Alvast laden (bijv. de zinnen van de volgende opdracht).
+export function preload(texts) {
+  texts.forEach((t) => { const f = typeof t === 'string' && voiceFile(t); if (f) loadVoice(f); });
+}
+
+async function speakText(text) {
+  const f = voiceFile(text);
+  if (f) {
+    try {
+      const b = await loadVoice(f);
+      if (b && await clips.playBuffer(b)) return;
+    } catch {}
+  }
+  await tts(text); // terugval: de iPad-stem
+}
+
 async function run(parts, my) {
   for (const p of parts) {
     if (my !== token) return false;
-    if (typeof p === 'string') await tts(p);
+    if (typeof p === 'string') await speakText(p);
     else if (p.pause) await wait(p.pause);
     else if (p.clip !== undefined) {
       if (clips.has(p.clip)) { await clips.play(p.clip); await wait(120); }

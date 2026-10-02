@@ -39,7 +39,7 @@ register('settings', settingsScreen);
 register('record', recordScreen);
 register('letters', lettersScreen);
 
-clips.init().finally(() => go('start'));
+Promise.all([clips.init(), speech.initVoice()]).finally(() => go('start'));
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { speech.stop(); store.save(); } else resume();

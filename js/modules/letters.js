@@ -51,6 +51,11 @@ const NEAR = {
 };
 
 const keyOf = (l) => `l:${l}`;
+const cap = (w) => w[0].toUpperCase() + w.slice(1);
+const askWord = (w) => `Welke letter hoor je vooraan bij… ${w}?`;
+const findWord = (w) => `Zoek de letter van ${w}.`;
+const ofWord = (w) => `van ${w}.`;
+const introWord = (w) => `${cap(w)} begint met deze letter. ${cap(w)}!`;
 const active = () => store.get().letters.filter((l) => ORDER.includes(l));
 
 function question(l) {
@@ -66,9 +71,10 @@ export default {
   items() { return active().map((l) => ({ key: keyOf(l), make: () => question(l) })); },
 
   // Met opname: 'Welke letter hoor je? mmm'. Zonder: 'vooraan bij maan'.
+  // Hele zinnen waar het kan: die klinken met de opgenomen stem het mooist.
   ask(q, { first = true } = {}) {
     if (clips.has(q.letter)) return [first ? 'Welke letter hoor je?' : 'Luister nog eens.', { clip: q.letter }];
-    return ['Welke letter hoor je vooraan bij:', { pause: 150 }, `${q.word}?`];
+    return [askWord(q.word)];
   },
 
   // Na een fout: zeg welke klank ze aantikte (als die is ingesproken),
@@ -77,7 +83,8 @@ export default {
     const parts = [];
     if (wrong && clips.has(wrong)) parts.push('Dat is de', { clip: wrong }, { pause: 200 });
     else parts.push(tries > 1 ? 'Nog een keer.' : 'Bijna!');
-    parts.push('Zoek de', { clip: q.letter, or: ['letter van', `${q.word}.`] });
+    if (clips.has(q.letter)) parts.push('Zoek de', { clip: q.letter });
+    else parts.push(findWord(q.word));
     if (tries > 1) parts.push('Kijk, hij licht op!');
     return parts;
   },
@@ -85,8 +92,17 @@ export default {
   // Uitleg bij een nieuwe letter.
   intro(l) {
     const x = info(l);
-    if (clips.has(l)) return ['Dit is een nieuwe letter!', { pause: 200 }, { clip: l }, `van ${x.w}.`, { clip: l }];
-    return ['Dit is een nieuwe letter!', { pause: 200 }, `${x.w} begint met deze letter.`, `${x.w}!`];
+    if (clips.has(l)) return ['Dit is een nieuwe letter!', { pause: 200 }, { clip: l }, ofWord(x.w), { clip: l }];
+    return ['Dit is een nieuwe letter!', { pause: 200 }, introWord(x.w)];
+  },
+
+  // Alles wat deze module kan zeggen (voor het maken van de stem-bestanden).
+  lines() {
+    return [
+      'Welke letter hoor je?', 'Luister nog eens.', 'Dat is de', 'Nog een keer.', 'Bijna!', 'Zoek de',
+      'Kijk, hij licht op!', 'Dit is een nieuwe letter!',
+      ...LETTERS.flatMap((x) => [askWord(x.w), findWord(x.w), ofWord(x.w), introWord(x.w)]),
+    ];
   },
 
   // Hoeveel keuzes: begint met 3 en groeit mee als het goed gaat.

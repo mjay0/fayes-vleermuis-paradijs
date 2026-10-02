@@ -77,10 +77,15 @@ async function buffer(id) {
 
 // Speelt een klank af; de promise is klaar als hij is afgelopen.
 export async function play(id) {
-  const { ctx, master } = getAudio();
   let b = null;
   try { b = await buffer(id); } catch {}
-  if (!b || !ctx) return false;
+  return playBuffer(b);
+}
+
+// Speelt een AudioBuffer af (ook gebruikt voor de stem-bestanden).
+export function playBuffer(b) {
+  const { ctx, master } = getAudio();
+  if (!b || !ctx) return Promise.resolve(false);
   stop();
   return new Promise((res) => {
     const src = ctx.createBufferSource();

@@ -3,7 +3,7 @@
 // Let op: Henry's Feestje staat op hetzelfde domein (mjay0.github.io), dus we
 // ruimen alleen onze eigen caches op (die met PREFIX beginnen).
 const PREFIX = 'fayes-paradijs-';
-const CACHE = `${PREFIX}v2`;
+const CACHE = `${PREFIX}v3`;
 const FILES = [
   './',
   'index.html',
@@ -20,6 +20,8 @@ const FILES = [
   'js/clips.js',
   'js/art.js',
   'js/ui.js',
+  'js/lines.js',
+  'stem/index.json',
   'js/rewards.js',
   'js/modules/index.js',
   'js/modules/letters.js',
@@ -34,9 +36,32 @@ const FILES = [
   'js/screens/letters.js',
 ];
 
+// De stem-bestanden (zie stem/index.json) worden ook bewaard, maar een
+// mislukte download blokkeert de rest niet. Bestanden die al in een vorige
+// cache zaten (namen veranderen alleen als de zin verandert) worden hergebruikt.
+async function cacheVoice(c) {
+  try {
+    const idx = await (await c.match('stem/index.json')).json();
+    const files = [...new Set(Object.values(idx.lines))].map((f) => `stem/${f}`);
+    let i = 0;
+    await Promise.all(Array.from({ length: 6 }, async () => {
+      while (i < files.length) {
+        const f = files[i++];
+        try {
+          const old = await caches.match(f);
+          if (old) await c.put(f, old); else await c.add(new Request(f, { cache: 'reload' }));
+        } catch {}
+      }
+    }));
+  } catch {}
+}
+
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE)
-    .then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: 'reload' }))))
+    .then(async (c) => {
+      await c.addAll(FILES.map((f) => new Request(f, { cache: 'reload' })));
+      await cacheVoice(c);
+    })
     .then(() => self.skipWaiting()));
 });
 

@@ -5,6 +5,8 @@ import { setEnabled, setMusicEnabled } from '../audio.js';
 import * as speech from '../speech.js';
 import * as clips from '../clips.js';
 import { ORDER } from '../modules/letters.js';
+import letters from '../modules/letters.js';
+import { settingsTest } from '../lines.js';
 import * as store from '../store.js';
 
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -25,6 +27,7 @@ export function settingsScreen() {
 
       <section class="group">
         <h3>🗣️ Stem</h3>
+        <p class="small">Het spel spreekt met een opgenomen stem: Harper (Microsoft MAI-Voice, via OpenRouter). De iPad-stem hieronder is alleen een reserve, voor als een zin ontbreekt. Pas je de uitspraak van haar naam aan, dan zegt de iPad-stem de zinnen met haar naam.</p>
         ${voices.length
           ? `<label>Stem <select class="voice">
               <option value="">Automatisch</option>
@@ -66,16 +69,16 @@ export function settingsScreen() {
   tap(el.querySelector('.letters'), () => go('letters'));
 
   const voice = el.querySelector('.voice');
-  if (voice) voice.addEventListener('change', () => { s.settings.voice = voice.value; store.save(); speech.say('Hoi {naam}!'); });
+  if (voice) voice.addEventListener('change', () => { s.settings.voice = voice.value; store.save(); speech.say(settingsTest); });
   const rate = el.querySelector('.rate');
-  rate.addEventListener('change', () => { s.settings.rate = Number(rate.value); store.save(); speech.say('Hoi {naam}!'); });
+  rate.addEventListener('change', () => { s.settings.rate = Number(rate.value); store.save(); speech.say(settingsTest); });
   const name = el.querySelector('.name');
   name.addEventListener('change', () => { s.settings.name = name.value.trim(); store.save(); });
   const spoken = el.querySelector('.spoken');
   spoken.addEventListener('change', () => { s.settings.spokenName = spoken.value.trim(); store.save(); });
   tap(el.querySelector('.test-voice'), () => {
     s.settings.spokenName = spoken.value.trim();
-    speech.say(['Hoi {naam}!', 'Welke letter hoor je?', { clip: 'm', or: ['Welke letter hoor je vooraan bij: maan?'] }]);
+    speech.say([settingsTest, ...letters.ask({ letter: 'm', word: 'maan' })]);
   });
 
   tap(el.querySelector('.sound'), () => {
